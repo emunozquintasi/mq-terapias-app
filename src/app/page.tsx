@@ -1,27 +1,33 @@
-"use client";
+"use client"
 
-import React from "react";
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
-export default function HomePage() {
-  // Function to get greeting based on current time
-  const getGreeting = (): string => {
-    const now = new Date();
-    const hour = now.getHours();
+export default function Home() {
+  const [clients, setClients] = useState<any[]>([])
 
-    if (hour >= 6 && hour < 12) {
-      return "Bom dia";
-    } else if (hour >= 12 && hour < 18) {
-      return "Buenas Tardes";
-    } else {
-      return "Buenas Noches";
+  useEffect(() => {
+    const fetchClients = async () => {
+      const { data, error } = await supabase.from("clients").select("*")
+      if (error) console.error(error)
+      else setClients(data)
     }
-  };
 
-  const greeting = getGreeting();
+    fetchClients()
+  }, [])
 
   return (
-    <main style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", fontSize: "2rem" }}>
-      <h1>{greeting}</h1>
+    <main className="p-8">
+      <h1 className="text-2xl font-bold">Clients</h1>
+      {clients.length === 0 ? (
+        <p>No clients yet.</p>
+      ) : (
+        <ul>
+          {clients.map((c) => (
+            <li key={c.id}>{c.first_name} {c.last_name}</li>
+          ))}
+        </ul>
+      )}
     </main>
-  );
+  )
 }
